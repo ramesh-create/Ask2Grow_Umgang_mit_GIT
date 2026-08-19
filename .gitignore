@@ -1,0 +1,15 @@
+# Node / npm (falls später ein Build-Schritt dazukommt)
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporäre Smoke-/Testdateien
+_proto_smoke.html

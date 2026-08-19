@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umfrage App – Prototyp</title>
+<style>
+  /* Farbregel: max 3 Farben (Indigo, Grün, Dunkelgrau). Weiss/Hellgrau sind Neutraltöne. */
+  :root{
+    --primary:#3B5BDB;   /* Indigo  */
+    --accent:#20C997;    /* Grün    */
+    --dark:#2B3440;      /* Dunkel  */
+    --bg:#F5F6FA;        /* neutral */
+    --card:#FFFFFF;      /* neutral */
+    --text:#2B3440;
+    --muted:#6B7280;
+    --border:#E2E5EC;
+    --danger:#C0392B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  header{background:var(--primary);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+  header h1{font-size:20px;font-weight:700}
+  header .sub{font-size:13px;opacity:.85}
+  .wrap{max-width:920px;margin:0 auto;padding:20px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+  .card h2{margin-bottom:14px;font-size:17px;color:var(--primary)}
+  label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px;color:var(--dark)}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff}
+  input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{outline:2px solid var(--primary)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .row > *{flex:1;min-width:140px}
+  button{
+    background:var(--primary);color:#fff;border:none;padding:10px 16px;border-radius:8px;
+    font-size:14px;font-weight:600;cursor:pointer}
+  button:hover{filter:brightness(1.1)}
+  button.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+  button.green{background:var(--accent)}
+  button.danger{background:var(--danger)}
+  button.small{padding:6px 12px;font-size:12px}
+  .roles{display:flex;gap:14px;flex-wrap:wrap}
+  .role{flex:1;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;cursor:pointer;text-align:center}
+  .role:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(59,91,219,.15)}
+  .role .icon{font-size:34px;margin-bottom:10px}
+  .role h3{color:var(--primary);margin-bottom:6px}
+  .role p{font-size:13px;color:var(--muted)}
+  .opt{padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;background:#fff}
+  .opt.selected{border-color:var(--primary);background:rgba(59,91,219,.06)}
+  .bare{background:none;border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px}
+  .bare.on{border-color:var(--accent);color:var(--accent)}
+  .q{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+  .q h3{font-size:16px;margin-bottom:6px}
+  .q .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(59,91,219,.1);color:var(--primary);margin-left:6px}
+  .q .tag.green{background:rgba(32,201,151,.12);color:#159a73}
+  .bar{height:26px;background:var(--border);border-radius:6px;overflow:hidden;margin:4px 0}
+  .bar > div{height:100%;background:var(--primary);color:#fff;font-size:11px;line-height:26px;padding-left:8px;white-space:nowrap}
+  .bar > div.green{background:var(--accent)}
+  .muted{color:var(--muted);font-size:13px}
+  .code{font-size:44px;font-weight:800;letter-spacing:6px;color:var(--primary);text-align:center;background:#fff;border:2px dashed var(--primary);border-radius:12px;padding:16px}
+  .badge{display:inline-block;background:rgba(32,201,151,.12);color:#159a73;font-weight:700;padding:2px 10px;border-radius:20px;font-size:13px}
+  .pts{font-size:14px;font-weight:700;color:var(--accent)}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  ul.tags{list-style:none;display:flex;gap:8px;flex-wrap:wrap}
+  ul.tags li{font-size:12px;background:rgba(59,91,219,.08);color:var(--primary);padding:2px 10px;border-radius:20px}
+  textarea{resize:vertical}
+  .msg{padding:12px;border-radius:8px;margin-bottom:12px;font-size:14px}
+  .msg.ok{background:rgba(32,201,151,.12);color:#159a73}
+  .msg.err{background:rgba(192,57,43,.12);color:var(--danger)}
+  .flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .steps{display:flex;gap:10px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Umfrage App</h1>
+    <div class="sub">Prototyp</div>
+  </div>
+  <button class="ghost" onclick="goHome()">Startseite</button>
+</header>
+<main class="wrap">
+  <!-- ============ LANDING ============ -->
+  <section id="view-landing">
+    <div class="card">
+      <h2>Willkommen</h2>
+      <p class="muted" style="margin-bottom:16px">Wähle deine Rolle im Prototyp.</p>
+      <div class="roles">
+        <div class="role" onclick="goView('host')">
+          <div class="icon">🎤</div>
+          <h3>Host</h3>
+          <p>Fragen erstellen, Live-Ergebnisse, auswerten, vergleichen &amp; teilen.</p>
+        </div>
+        <div class="role" onclick="goView('teilnehmer')">
+          <div class="icon">👤</div>
+          <h3>Teilnehmer</h3>
+          <p>Mit Code beitreten, fragen beantworten, Punkte sammeln, Feedback geben.</p>
+        </div>
+        <div class="role" onclick="goView('teilnehmer')">
+          <div class="icon">🏢</div>
+          <h3>Abteilung</h3>
+          <p>Wie Teilnehmer, aber beantwortet als eigene Abteilung (z.B. Marketing).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOST ============ -->
+  <section id="view-host" style="display:none">
+    <div class="card">
+      <div class="flex-between">
+        <h2>Host – Dashboard</h2>
+        <button class="green" onclick="goView('host-erstellen')">+ Neue Frage</button>
+      </div>
+      <div class="flex-between" style="margin-top:8px">
+        <div class="muted">Code zum Teilen:</div>
+        <button class="small" onclick="copyCode()">📋 Code kopieren</button>
+      </div>
+      <div class="code" id="host-code" onclick="copyCode()"></div>
+      <p class="muted" style="text-align:center;margin-top:6px">QR-Code-Platzhalter – realer QR (z.B. über eine QR-Library) kann hier eingebunden werden.</p>
+      <div class="row" style="margin-top:12px">
+        <button class="small" onclick="goView('host-live')">📊 Live-Ergebnisse</button>
+        <button class="small ghost" onclick="goView('host-vergleich')">⚖️ Fragen vergleichen</button>
+      </div>
+    </div>
+    <div id="host-questions"></div>
+
+  <!-- ============ HOST: FRAGE ERSTELLEN ============ -->
+  <section id="view-host-erstellen" style="display:none">
+    <div class="card">
+      <h2>Neue Frage erstellen</h2>
+      <label>Fragentitel</label>
+      <input type="text" id="f-titel" placeholder="z.B. Welche Farbe gefällt dir am besten?">
+      <label>Fragetyp</label>
+      <select id="f-typ">
+        <option value="choice">Mehrfachauswahl</option>
+        <option value="yesno">Ja/Nein</option>
+      </select>
+      <label>Antwortoptionen (eine pro Zeile)</label>
+      <textarea id="f-optionen" rows="3" placeholder="Blau&#10;Grün&#10;Rot"></textarea>
+      <label>Punkte pro Antwort</label>
+      <input type="number" id="f-punkte" value="5" min="0">
+      <div class="row">
+        <label style="flex:none;min-width:0"><input type="checkbox" id="f-anon"> Anonym beantwortbar</label>
+        <label style="flex:none;min-width:0"><input type="checkbox" id="f-fields"> Daten erfassen (Alter, usw.)</label>
+      </div>
+      <div style="margin-top:16px">
+        <button onclick="addQuestion()">Frage speichern</button>
+        <button class="ghost" onclick="goView('host')">Abbrechen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOST: LIVE ============ -->
+  <section id="view-host-live" style="display:none">
+    <div class="card">
+      <div class="flex-between">
+        <h2>Live-Ergebnisse &amp; Auswertung</h2>
+        <button class="small ghost" onclick="renderLive()">🔄 Aktualisieren</button>
+      </div>
+      <div id="live-content"></div>
+    </div>
+  </section>
+
+  <!-- ============ HOST: VERGLEICH ============ -->
+  <section id="view-host-vergleich" style="display:none">
+    <div class="card">
+      <h2>Fragen vergleichen</h2>
+      <p class="muted" style="margin-bottom:12px">Wähle mindestens zwei Fragen zum Vergleich aus.</p>
+      <div id="vergleich-auswahl"></div>
+      <button class="green" onclick="renderVergleich()" style="margin-top:12px">Vergleich anzeigen</button>
+      <div id="vergleich-content" style="margin-top:16px"></div>
+    </div>
+  </section>
+
+  <!-- ============ TEILNEHMER ============ -->
+  <section id="view-teilnehmer" style="display:none">
+    <div class="card" id="tn-join">
+      <h2>Beitreten</h2>
+      <label>Code eingeben</label>
+      <input type="text" id="tn-code" placeholder="z.B. ASK2024">
+      <label>Name (optional)</label>
+      <input type="text" id="tn-name" placeholder="Max Mustermann">
+      <label>Abteilung (optional)</label>
+      <input type="text" id="tn-abt" placeholder="z.B. Marketing">
+      <label style="margin-top:8px"><input type="checkbox" id="tn-anon"> Anonym beantworten</label>
+      <div style="margin-top:16px"><button class="green" onclick="joinSurvey()">Beitreten</button></div>
+    </div>
+    <div id="tn-survey" style="display:none">
+      <div class="card">
+        <div class="flex-between">
+          <div class="pts" id="tn-score"></div>
+          <label style="margin:0"><input type="checkbox" id="tn-anon2" onchange="toggleAnon()"> Anonym</label>
+        </div>
+        <div id="tn-questions"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ---------- State (localStorage) ----------
+const KEY='umfrage-app-proto';
+let DB=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||defaultDB()}catch(e){return defaultDB()}}
+function defaultDB(){
+  return{
+    code:'ASK2024',
+    questions:[
+      {id:1,title:'Nutzt du die App wöchentlich?',type:'yesno',options:['Ja','Nein'],points:5,anon:true,fields:false,votes:[],feedback:[]},
+      {id:2,title:'Welche Farbe gefällt dir am besten?',type:'choice',options:['Blau','Grün','Rot'],points:5,anon:true,fields:true,votes:[],feedback:[]}
+    ],
+    nextId:3,
+    joined:false,
+    score:0
+  };
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(DB))}
+
+let TNCURRENT={name:'',abt:'',anon:false};
+
+// ---------- Navigation ----------
+const VIEWS=['landing','host','host-erstellen','host-live','host-vergleich','teilnehmer'];
+function goView(v){VIEWS.forEach(x=>document.getElementById('view-'+x).style.display=(x===v)?'block':'none');
+  const hostViews=['host','host-erstellen','host-live','host-vergleich'];
+  document.querySelector('header button').style.display=(v==='landing')?'none':'inline-block';
+  if(v==='host')renderHost();
+  if(v==='host-live')renderLive();
+  if(v==='host-vergleich')renderVergleichAuswahl();
+  if(v==='teilnehmer'){document.getElementById('tn-join').style.display='block';document.getElementById('tn-survey').style.display='none';if(DB.joined)showSurvey();}
+  window.scrollTo(0,0);
+}
+function goHome(){goView('landing')}
+
+// ---------- Host: Fragen ----------
+function renderHost(){
+  document.getElementById('host-code').textContent=DB.code;
+  const c=document.getElementById('host-questions');
+  if(!DB.questions.length){c.innerHTML='<div class="card muted">Noch keine Fragen erstellt.</div>';return}
+  c.innerHTML=DB.questions.map(q=>{
+    const votes=q.votes.length;
+    const tags=[q.type==='yesno'?'Ja/Nein':'Mehrfachauswahl', q.anon?'anonym':'', q.fields?'Daten erfasst':''].filter(Boolean);
+    return `<div class="q">
+      <div class="flex-between">
+        <h3>${esc(q.title)}${votes?`<span class="tag green">${votes} Antworten</span>`:''}</h3>
+        <button class="small danger" onclick="delQuestion(${q.id})">✕</button>
+      </div>
+      <ul class="tags">${tags.map(t=>`<li>${t}</li>`).join('')}</ul>
+      <div class="muted">Punkte: ${q.points} pro Antwort</div>
+      <div class="row" style="margin-top:10px">
+        <button class="small ghost" onclick="arrangeLive()">📊 Ergebnisse</button>
+        <button class="small ghost" onclick="arrangeVergleich()">⚖️ Vergleichen</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function delQuestion(id){DB.questions=DB.questions.filter(q=>q.id!==id);save();renderHost()}
+
+function addQuestion(){
+  const titel=document.getElementById('f-titel').value.trim();
+  const typ=document.getElementById('f-typ').value;
+  let options=document.getElementById('f-optionen').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(typ==='yesno')options=['Ja','Nein'];
+  const punkte=parseInt(document.getElementById('f-punkte').value)||0;
+  const anon=document.getElementById('f-anon').checked;
+  const fields=document.getElementById('f-fields').checked;
+  if(!titel||!options.length){alert('Titel und mindestens eine Option erforderlich.');return}
+  DB.questions.push({id:DB.nextId++,title:titel,type:typ,options:options,points:punkte,anon:anon,fields:fields,votes:[],feedback:[]});
+  save();
+  document.getElementById('f-titel').value='';
+  document.getElementById('f-optionen').value='';
+  goView('host');
+}
+
+// ---------- Teilnehmer ----------
+function joinSurvey(){
+  const code=document.getElementById('tn-code').value.trim();
+  if(code!==DB.code){alert('Ungültiger Code.');return}
+  TNCURRENT={name:document.getElementById('tn-name').value.trim(),
+             abt:document.getElementById('tn-abt').value.trim(),
+             anon:document.getElementById('tn-anon').checked};
+  DB.joined=true;save();showSurvey();
+}
+function showSurvey(){
+  document.getElementById('tn-join').style.display='none';
+  document.getElementById('tn-survey').style.display='block';
+  document.getElementById('tn-score').textContent='⭐ Punkte: '+DB.score;
+  const c=document.getElementById('tn-questions');
+  if(!DB.questions.length){c.innerHTML='<div class="card muted">Keine Fragen vorhanden.</div>';return}
+  c.innerHTML=DB.questions.map((q,i)=>`
+    <div id="qbox-${q.id}" class="card">
+      <h2>${esc(q.title)} <span class="tag">${q.type==='yesno'?'Ja/Nein':'Mehrfachauswahl'}</span></h2>
+      ${q.fields?`<div class="row"><div><label>Alter</label><input type="number" id="age-${q.id}" min="1" max="120" placeholder="Jahre"></div></div>`:''}
+      <div id="opts-${q.id}">
+        ${q.options.map(o=>`<div class="opt" onclick="vote(${q.id},${JSON.stringify(o)})">${esc(o)}</div>`).join('')}
+      </div>
+      <label style="margin-top:14px">Feedback (optional)</label>
+      <textarea id="fb-${q.id}" rows="2" placeholder="Deine Rückmeldung…"></textarea>
+      <div style="margin-top:8px"><button class="small" onclick="submitFeedback(${q.id})">Feedback senden</button></div>
+    </div>`).join('');
+}
+function vote(qid,opt){
+  const voted=DB.questions.find(q=>q.id===qid).votes.some(v=>v.sess===sessId());
+  if(voted){alert('Diese Frage hast du bereits beantwortet (Punkte schon gutgeschrieben).');return}
+  const q=DB.questions.find(x=>x.id===qid);
+  let age='';
+  if(q.fields){
+    age=document.getElementById('age-'+qid)?document.getElementById('age-'+qid).value:'';
+    if(!age){alert('Bitte Alter angeben.');return}
+  }
+  q.votes.push({opt:opt,age:age,name:TNCURRENT.name,abt:TNCURRENT.abt,anon:TNCURRENT.anon,sess:sessId()});
+  DB.score+=q.points;
+  save();showSurvey();
+  const box=document.getElementById('opts-'+qid);
+  box.innerHTML=`<div class="msg ok">✅ Antwort gespeichert! +${q.points} Punkte</div>`;
+}
+function sessId(){return sessionStorage.getItem('ss')||(sessionStorage.setItem('ss',Math.random().toString(36).slice(2)),sessionStorage.getItem('ss'))}
+function toggleAnon(){TNCURRENT.anon=document.getElementById('tn-anon2').checked}
+function submitFeedback(qid){
+  const t=document.getElementById('fb-'+qid).value.trim();
+  if(!t)return;
+  DB.questions.find(q=>q.id===qid).feedback.push(t);
+  save();
+  document.getElementById('fb-'+qid).value='';
+  alert('Danke für dein Feedback!');
+}
+
+// ---------- Auswertung / Live ----------
+function counts(q){
+  const m={};q.options.forEach(o=>m[o]=0);
+  q.votes.forEach(v=>{if(m[v.opt]!=null)m[v.opt]++});
+  return m;
+}
+function renderLive(){
+  const c=document.getElementById('live-content');
+  if(!DB.questions.length){c.innerHTML='<div class="card muted">Keine Fragen.</div>';return}
+  c.innerHTML=DB.questions.map(q=>bars(q)).join('<hr style="border-color:var(--border);margin:16px 0">');
+}
+function bars(q){
+  const m=counts(q);
+  const total=q.votes.length||1;
+  let html=`<h3 style="margin-bottom:6px">${esc(q.title)} <span class="tag">${q.votes.length} Antworten</span></h3>`;
+  q.options.forEach((o,i)=>{
+    const n=m[o],pct=Math.round(n/total*100);
+    html+=`<div class="top"><span>${esc(o)}</span><span class="pts">${n} (${pct}%)</span></div>
+      <div class="bar"><div style="width:${pct}%" class="${i%2?'green':''}">${n}</div></div>`;
+  });
+  if(q.fields&&q.votes.length){
+    const ages=q.votes.map(v=>parseInt(v.age)).filter(a=>!isNaN(a));
+    const avg=ages.length?Math.round(ages.reduce((a,b)=>a+b,0)/ages.length):0;
+    html+=`<div class="muted" style="margin-top:8px">📊 Durchschnittsalter der Antworten: ${avg} Jahre</div>`;
+  }
+  if(q.feedback.length){
+    html+=`<div style="margin-top:10px"><b class="muted">Feedback:</b><ul class="tags" style="margin-top:6px;gap:6px">${q.feedback.map(f=>`<li style="max-width:100%;white-space:normal">${esc(f)}</li>`).join('')}</ul></div>`;
+  }
+  return html;
+}
+function renderVergleichAuswahl(){
+  document.getElementById('vergleich-content').innerHTML='';
+  const c=document.getElementById('vergleich-auswahl');
+  if(!DB.questions.length){c.innerHTML='<div class="card muted">Keine Fragen.</div>';return}
+  c.innerHTML=DB.questions.map(q=>`<label style="margin:6px 0"><input type="checkbox" class="vcmp" value="${q.id}"> ${esc(q.title)}</label>`).join('');
+}
+function renderVergleich(){
+  const sel=[...document.querySelectorAll('.vcmp:checked')].map(x=>x.value);
+  const qs=DB.questions.filter(q=>sel.includes(String(q.id)));
+  const c=document.getElementById('vergleich-content');
+  if(qs.length<2){c.innerHTML='<div class="msg err">Bitte mindestens zwei Fragen auswählen.</div>';return}
+  c.innerHTML=qs.map(bars).join('');
+}
+
+// ---------- Utils ----------
+function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]))}
+function copyCode(){navigator.clipboard.writeText(DB.code).then(()=>alert('Code kopiert: '+DB.code))}
+function arrangeLive(){goView('host-live');renderLive()}
+function arrangeVergleich(){goView('host-vergleich');renderVergleichAuswahl()}
+</script>
+</body>
+</html>
