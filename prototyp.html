@@ -121,6 +121,7 @@
       <div class="row" style="margin-top:12px">
         <button class="small" onclick="goView('host-live')">📊 Live-Ergebnisse</button>
         <button class="small ghost" onclick="goView('host-vergleich')">⚖️ Fragen vergleichen</button>
+        <button class="small danger" onclick="resetDemo()">🔄 Demo zurücksetzen</button>
       </div>
     </div>
     <div id="host-questions"></div>
@@ -255,6 +256,14 @@ function renderHost(){
   }).join('');
 }
 function delQuestion(id){DB.questions=DB.questions.filter(q=>q.id!==id);save();renderHost()}
+
+function resetDemo(){
+  if(!confirm('Alle Fragen, Antworten und Punkte zurücksetzen?'))return;
+  DB=defaultDB();
+  save();
+  TNCURRENT={name:'',abt:'',anon:false};
+  goView('host');
+}
 
 function addQuestion(){
   const titel=document.getElementById('f-titel').value.trim();
